@@ -1,0 +1,41 @@
+---
+- hosts: all
+  become: true
+  become_user: root
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+
+    - name: Apt update cache (apt)
+      # become: true
+      # become_user: root
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install apt-transport-https
+      # become: true
+      # become_user: root
+      ansible.builtin.apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Download signature
+      ansible.builtin.uri:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        return_content: true
+      register: gpg_key
+
+    - name: Print gpg_key
+      ansible.builtin.debug:
+        msg: "GPG KEY IS: {{ gpg_key.content }}"
+
+      # yamllint disable-line
+    - name: Dearmor
+      # yamllint disable-line
+      ansible.builtin.shell: 
+        # yamllint disable-line
+        cmd: gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+        # yamllint disable-line
+        stdin: "{{ gpg_key.content }}"
