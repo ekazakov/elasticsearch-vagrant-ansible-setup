@@ -1,3 +1,4 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
 ---
 - hosts: all
   become: true
@@ -36,6 +37,32 @@
       # yamllint disable-line
       ansible.builtin.shell: 
         # yamllint disable-line
-        cmd: gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+        cmd: gpg --dearmor > /usr/share/keyrings/elasticsearch-keyring.gpg
         # yamllint disable-line
         stdin: "{{ gpg_key.content }}"
+
+    - name: Elasticrepo | apt source
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main
+        filename: elastic-8.x
+        update_cache: true
+        state: present
+
+    - name: Install elasticsearch
+      ansible.builtin.apt:
+        name: elasticsearch=8.6.0
+        state: present
+
+    - name: Copy elasticsearch configuration
+      ansible.builtin.copy:
+        src: ./templates/elasticsearch.yml
+        dest: /etc/elasticsearch/
+        owner: root
+        group: elasticsearch
+        mode: u=rw,g=rw,o=r
+
+    - name: Run elasticsearch with systemd
+      ansible.builtin.systemd:
+        name: elasticsearch.service
+        enabled: true
+        daemon_reload: true
