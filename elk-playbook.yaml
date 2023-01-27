@@ -57,6 +57,7 @@
       ansible.builtin.copy:
         src: ./templates/elasticsearch.yml
         dest: /etc/elasticsearch/
+        force: true
         owner: root
         group: elasticsearch
         mode: u=rw,g=rw,o=r
@@ -66,3 +67,9 @@
         name: elasticsearch.service
         enabled: true
         daemon_reload: true
+        state: started
+      register: elastic_service_status
+
+    - name: Print elastic_service_status
+      ansible.builtin.debug:
+        msg: "Elastic service state: {{ elastic_service_status.status.ActiveState }}"
