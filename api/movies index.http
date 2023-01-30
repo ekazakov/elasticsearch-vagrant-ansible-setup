@@ -1,0 +1,209 @@
+# https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+### Create mappings for index
+PUT http://127.0.0.1:9200/movies
+Content-Type: application/json
+
+{
+    "mappings": {
+        "properties": {
+            "id": { "type": "integer" },
+            "year": { "type": "date" },
+            "genre": { "type": "keyword"},
+            "title": { 
+                "type": "text", 
+                "analyzer": "english",
+                // keep raw version of the field to enable sorting by title
+                "fields": {
+                    "raw": {
+                        "type": "keyword"
+                    }
+                }
+            }
+        }
+    }
+}
+
+### Get index
+
+GET http://127.0.0.1:9200/movies/_mapping?pretty=true
+
+### Populate index with bulk upload
+
+PUT http://127.0.0.1:9200/_bulk?pretty
+Content-Type: application/x-ndjson
+
+{ "create" : { "_index" : "movies", "_id" : "135569" } }
+{ "id": "135569", "title" : "Star Trek Beyond", "year":2016 , "genre":["Action", "Adventure", "Sci-Fi"] }
+{ "create" : { "_index" : "movies", "_id" : "122886" } }
+{ "id": "122886", "title" : "Star Wars: Episode VII - The Force Awakens", "year":2015 , "genre":["Action", "Adventure", "Fantasy", "Sci-Fi", "IMAX"] }
+{ "create" : { "_index" : "movies", "_id" : "109487" } }
+{ "id": "109487", "title" : "Interstellar", "year":2014 , "genre":["Sci-Fi", "IMAX"] }
+{ "create" : { "_index" : "movies", "_id" : "58559" } }
+{ "id": "58559", "title" : "Dark Knight, The", "year":2008 , "genre":["Action", "Crime", "Drama", "IMAX"] }
+{ "create" : { "_index" : "movies", "_id" : "1924" } }
+{ "id": "1924", "title" : "Plan 9 from Outer Space", "year":1959 , "genre":["Horror", "Sci-Fi"] }
+
+### Create/replace single movie
+
+PUT http://127.0.0.1:9200/movies/_doc/109487?pretty
+Content-Type: application/json
+
+{
+     "genre": ["IMAX", "Sci-Fi"],
+     "title": "Interstellar",
+     "year": 2014
+}
+
+
+### Partial update
+
+POST http://127.0.0.1:9200/movies/_update/109487
+Content-Type: application/json
+
+{
+    "doc": {
+        "titile": "Interstellar",
+        "year": 2014
+    }
+}
+
+
+### Fetch all movies
+
+GET http://127.0.0.1:9200/movies/_search?pretty
+Content-Type: application/json
+
+
+###
+
+DELETE http://127.0.0.1:9200/movies
+Content-Type: application/json
+
+
+###
+
+GET http://127.0.0.1:9200/movies/_search?pretty
+Content-Type: application/json
+
+{
+    "query": {
+        "match": {
+            "title": "Star Treck"
+        }
+    }
+}
+
+### 
+
+GET http://127.0.0.1:9200/movies/_search?pretty
+Content-Type: application/json
+
+{
+    "query": {
+        "match_phrase": {
+            "genre": "Sci-Fi"
+        }
+    }
+}
+
+
+### Light Queries 1
+
+GET http://127.0.0.1:9200/movies/_search?q=title:star
+
+### Light Queries 2
+
+GET http://127.0.0.1:9200/movies/_search?q=+title:trek+year>2010
+
+
+### Bool query with filter
+
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "bool": {
+            "must": {
+                "term": { "title": "trek" }
+            },
+            "filter": {
+                "range": { "year": {"gte": 2010 } }
+            }
+        }
+    }
+}
+
+### Match frase
+
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "match_phrase": {
+            "title": "star wars"
+        }
+    }
+}
+
+### Match frase with proximity (slop property)
+
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "match_phrase": {
+            "title": {
+                "query": "star beyond",
+                "slop": 1
+            }
+        }
+    }
+}
+
+
+### 
+
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "bool": {
+            "must": {
+                "match_phrase": {
+                    "title": "Star Wars"
+                }
+            },
+            "filter": {
+                "range": {
+                     "year": { "lte": "2020-01-01" }
+                }
+            }
+        }
+    }
+}
+
+### Sorting
+GET http://127.0.0.1:9200/movies/_search?sort=year
+
+### Sorting
+GET http://127.0.0.1:9200/movies/_search?sort=title.raw
+
+
+### More filters
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "bool": {
+            "must": { "match": {"genre": "Sci-Fi"} },
+            "must_not": { "match": {"title": "trek"} },
+            "filter": { "range": { "year": { "gte": "2010", "lt": "2015" }} }
+        }
+    }
+}

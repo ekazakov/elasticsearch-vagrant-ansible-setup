@@ -1,0 +1,81 @@
+### Create mapping
+
+PUT 'http://localhost:9200/microservice-logs' 
+Content-Type: application/application/json
+
+{
+   "mappings": {
+       "properties": {
+           "timestamp": { "type": "date"  },
+           "service": { "type": "keyword" },
+           "host_ip": { "type": "ip" },
+           "port": { "type": "integer" },
+           "message": { "type": "text" }
+       }
+   }
+}
+
+### Add item with correct types
+
+POST http://localhost:9200/microservice-logs/_doc?pretty
+Content-Type: application/json
+
+{
+    "timestamp": "2020-04-11T12:34:56.789Z", 
+    "service": "ABC", 
+    "host_ip": "10.0.2.15", 
+    "port": 12345, 
+    "message": "Started!" 
+}
+
+
+### Add item with type coersion
+
+POST http://localhost:9200/microservice-logs/_doc?pretty 
+Content-Type: application/json
+
+# port must be a number
+{
+    "timestamp": "2020-04-11T12:34:56.789Z", 
+    "service": "XYZ", 
+    "host_ip": "10.0.2.15", 
+    "port": "15000", 
+    "message": "Hello!" 
+}
+
+### Add item with completly wrong type
+
+POST http://localhost:9200/microservice-logs/_doc?pretty 
+Content-Type: application/json
+
+# port must be a number
+{
+    "timestamp": "2020-04-11T12:34:56.789Z", 
+    "service": "XYZ", 
+    "host_ip": "10.0.2.15", 
+    "port": "NONE", 
+    "message": "Hello!" 
+}
+
+
+#### Fixing index
+
+### 1.0 Close index
+POST http://localhost:9200/microservice-logs/_close
+
+
+### 1.1 Update index
+PUT http://localhost:9200/microservice-logs/_settings
+Content-Type: application/json
+
+{
+   "index.mapping.ignore_malformed": true
+}
+
+### 1.2 Open index again
+POST http://localhost:9200/microservice-logs/_open
+
+
+### Check the doc
+
+GET http://localhost:9200/microservice-logs/_doc/xk66_YUBOXhiTyJ2bqPR?pretty
