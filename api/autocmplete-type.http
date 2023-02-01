@@ -1,0 +1,111 @@
+### Check edge ngram
+
+POST http://localhost:9200/movies/_analyze?pretty
+Content-Type: application/json
+
+{
+   "tokenizer" : "standard",
+   "filter": [{"type":"edge_ngram", "min_gram": 1, "max_gram": 4}],
+   "text" : "Star"
+}
+
+### Create new index for movies with 'search_as_you_type' fields
+
+PUT http://localhost:9200/autocomplete
+Content-Type: application/json
+
+{
+   "mappings": {
+       "properties": {
+           "title": {
+               "type": "search_as_you_type"
+           },
+           "genre": {
+               "type": "search_as_you_type"
+           }
+       }
+   }
+}
+
+
+
+### Populate index with bulk upload
+
+# PUT http://127.0.0.1:9200/_bulk?pretty
+# Content-Type: application/x-ndjson
+
+# { "create" : { "_index" : "autocomplete", "_id" : "135569" } }
+# { "id": "135569", "title" : "Star Trek Beyond", "year":2016 , "genre":["Action", "Adventure", "Sci-Fi"] }
+# { "create" : { "_index" : "autocomplete", "_id" : "122886" } }
+# { "id": "122886", "title" : "Star Wars: Episode VII - The Force Awakens", "year":2015 , "genre":["Action", "Adventure", "Fantasy", "Sci-Fi", "IMAX"] }
+# { "create" : { "_index" : "autocomplete", "_id" : "109487" } }
+# { "id": "109487", "title" : "Interstellar", "year":2014 , "genre":["Sci-Fi", "IMAX"] }
+# { "create" : { "_index" : "autocomplete", "_id" : "58559" } }
+# { "id": "58559", "title" : "Dark Knight, The", "year":2008 , "genre":["Action", "Crime", "Drama", "IMAX"] }
+# { "create" : { "_index" : "autocomplete", "_id" : "1924" } }
+# { "id": "1924", "title" : "Plan 9 from Outer Space", "year":1959 , "genre":["Horror", "Sci-Fi"] }
+
+### Reindex movies to autocomplete
+
+POST http://localhost:9200/_reindex?pretty
+Content-Type: application/json
+
+{
+ "source": {
+   "index": "movies"
+ },
+ "dest": {
+   "index": "autocomplete"
+ }
+}
+
+
+### Check index
+
+GET http://localhost:9200/autocomplete/_mapping
+
+
+### Search multiply fields at once
+
+GET http://localhost:9200/autocomplete/_search?pretty
+Content-Type: application/json
+
+{
+    "size": 5,
+    "query": {
+       "multi_match": {
+           "query": "Sta",
+           "type": "bool_prefix",
+           "fields": [
+               "title",
+               "title._2gram",
+               "title._3gram"
+            ]
+        }
+    }
+}
+
+// Bash script with autocpmlete example
+# INPUT=''
+#
+# while true
+# do
+#  IFS= read -rsn1 char
+#  INPUT=$INPUT$char
+#  echo $INPUT
+#  curl --silent --request GET 'http://localhost:9200/autocomplete/_search' \
+#  --data-raw '{
+#      "size": 5,
+#      "query": {
+#          "multi_match": {
+#              "query": "'"$INPUT"'",
+#              "type": "bool_prefix",
+#              "fields": [
+#                  "title",
+#                  "title._2gram",
+#                  "title._3gram"
+#              ]
+#          }
+#      }
+#  }' | jq .hits.hits[]._source.title | grep -i "$INPUT"
+# done

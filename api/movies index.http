@@ -24,6 +24,82 @@ Content-Type: application/json
     }
 }
 
+
+### Create mappings for index with year as text
+PUT http://127.0.0.1:9200/movies
+Content-Type: application/json
+
+{
+    "mappings": {
+        "properties": {
+            "id": { "type": "integer" },
+            "year": { "type": "text" },
+            "genre": { "type": "keyword"},
+            "title": { 
+                "type": "text", 
+                "analyzer": "english",
+                // keep raw version of the field to enable sorting by title
+                "fields": {
+                    "raw": {
+                        "type": "keyword"
+                    }
+                }
+            }
+        }
+    }
+}
+
+### Setup n-grams config
+PUT http://127.0.0.1:9200/movies
+Content-Type: application/json
+
+{
+    "settings": {
+        "analysis": {
+            "filter": {
+                "autocomplete_filter": {
+                    "type": "edge_ngram",
+                    "min_gram": 1,
+                    "max_gram": 20
+                }
+            },
+            "analyzer": {
+                "autocomplete": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": [
+                        "lowercase",
+                        "autocomplete_filter"
+                    ]
+                }
+            }
+        }
+    }
+}
+
+### Test analyze from ^
+GET http://127.0.0.1:9200/movies/_analyze
+Content-Type: application/json
+
+{
+    "analyzer": "autocomplete",
+    "text": "star"
+}
+
+### Create index with ngram support
+PUT http://127.0.0.1:9200/movies/_mapping
+Content-Type: application/json
+
+{
+    "properties": {
+        "title": {
+            "type": "text",
+            "analyzer": "autocomplete"
+        }
+    }
+}
+
+
 ### Get index
 
 GET http://127.0.0.1:9200/movies/_mapping?pretty=true
@@ -204,6 +280,60 @@ Content-Type: application/json
             "must": { "match": {"genre": "Sci-Fi"} },
             "must_not": { "match": {"title": "trek"} },
             "filter": { "range": { "year": { "gte": "2010", "lt": "2015" }} }
+        }
+    }
+}
+
+### Fuzzy Queries
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "fuzzy": {
+            "title": { "value": "intrsteller", "fuzziness": 2 }
+        }
+    }
+}
+
+### Partial Matching / Prefix Queries
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "prefix": {
+            // year must be text field
+            "year": "201"
+        }
+    }
+}
+
+### Partial Matching / Wildcard
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "wildcard": {
+            // year must be text field
+            "year": "*5*" // 201*, *1*
+        }
+    }
+}
+
+
+### Search as you type
+GET http://127.0.0.1:9200/movies/_search
+Content-Type: application/json
+
+{
+    "query": {
+        "match_phrase_prefix": {
+            "title": {
+                "query": "star tr",
+                "slop": 10
+            }
         }
     }
 }
