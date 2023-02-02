@@ -1,0 +1,17 @@
+{
+  "name": "elk-data-uploader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/movies.mjs",
+  "scripts": {
+    "start": "zx src/movies.mjs",
+    "tags": "zx src/tags.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.6.0",
+    "csvtojson": "^2.0.10",
+    "zx": "^7.1.1"
+  }
+}

@@ -1,0 +1,12 @@
+### Get index
+
+GET http://127.0.0.1:9200/ratings/_mapping?pretty=true
+
+
+###
+
+GET http://127.0.0.1:9200/ratings/_search
+
+###
+
+GET http://127.0.0.1:9200/ratings/_count

@@ -1,0 +1,25 @@
+### Get index
+
+GET http://127.0.0.1:9200/tags/_mapping?pretty=true
+
+
+###
+
+GET http://127.0.0.1:9200/tags/_search
+
+###
+
+GET http://127.0.0.1:9200/tags/_count
+
+###
+
+GET http://127.0.0.1:9200/tags/_search
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "title": "Addams Family"
+    }
+  }
+}
