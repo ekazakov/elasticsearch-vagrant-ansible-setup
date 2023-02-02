@@ -11,5 +11,5 @@
 
 - name: Install logstash
   ansible.builtin.apt:
-    name: logstash=8.6.0
+    name: logstash
     state: present
