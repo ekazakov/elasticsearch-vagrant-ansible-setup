@@ -1,0 +1,15 @@
+---
+
+- name: Apt update cache (apt)
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install openjdk-8-jre-headless
+  ansible.builtin.apt:
+    name: openjdk-8-jre-headless
+    state: present
+
+- name: Install logstash
+  ansible.builtin.apt:
+    name: logstash=8.6.0
+    state: present

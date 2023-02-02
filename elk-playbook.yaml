@@ -7,69 +7,68 @@
   vars_files:
     - vars.yaml
 
-  tasks:
+  roles:
+    - logstash
 
-    - name: Apt update cache (apt)
-      # become: true
-      # become_user: root
-      ansible.builtin.apt:
-        update_cache: true
+#  tasks:
+#
+#    - name: Apt update cache (apt)
+#      ansible.builtin.apt:
+#        update_cache: true
+#
+#    - name: Install apt-transport-https
+#      ansible.builtin.apt:
+#        name: apt-transport-https
+#        state: present
+#
+#    - name: Download signature
+#      ansible.builtin.uri:
+#        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+#        return_content: true
+#      register: gpg_key
+#
+#    - name: Print gpg_key
+#      ansible.builtin.debug:
+#        msg: "GPG KEY IS: {{ gpg_key.content }}"
+#
+#      # yamllint disable-line
+#    - name: Dearmor
+#      # yamllint disable-line
+#      ansible.builtin.shell:
+#        # yamllint disable-line
+#        cmd: gpg --dearmor > /usr/share/keyrings/elasticsearch-keyring.gpg
+#        # yamllint disable-line
+#        stdin: "{{ gpg_key.content }}"
 
-    - name: Install apt-transport-https
-      # become: true
-      # become_user: root
-      ansible.builtin.apt:
-        name: apt-transport-https
-        state: present
-
-    - name: Download signature
-      ansible.builtin.uri:
-        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-        return_content: true
-      register: gpg_key
-
-    - name: Print gpg_key
-      ansible.builtin.debug:
-        msg: "GPG KEY IS: {{ gpg_key.content }}"
-
-      # yamllint disable-line
-    - name: Dearmor
-      # yamllint disable-line
-      ansible.builtin.shell: 
-        # yamllint disable-line
-        cmd: gpg --dearmor > /usr/share/keyrings/elasticsearch-keyring.gpg
-        # yamllint disable-line
-        stdin: "{{ gpg_key.content }}"
-
-    - name: Elasticrepo | apt source
-      ansible.builtin.apt_repository:
-        repo: deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main
-        filename: elastic-8.x
-        update_cache: true
-        state: present
-
-    - name: Install elasticsearch
-      ansible.builtin.apt:
-        name: elasticsearch=8.6.0
-        state: present
-
-    - name: Copy elasticsearch configuration
-      ansible.builtin.copy:
-        src: ./templates/elasticsearch.yml
-        dest: /etc/elasticsearch/
-        force: true
-        owner: root
-        group: elasticsearch
-        mode: u=rw,g=rw,o=r
-
-    - name: Run elasticsearch with systemd
-      ansible.builtin.systemd:
-        name: elasticsearch.service
-        enabled: true
-        daemon_reload: true
-        state: started
-      register: elastic_service_status
-
-    - name: Print elastic_service_status
-      ansible.builtin.debug:
-        msg: "Elastic service state: {{ elastic_service_status.status.ActiveState }}"
+#    - name: Elasticrepo | apt source
+#      ansible.builtin.apt_repository:
+#        repo: deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main
+#        filename: elastic-8.x
+#        update_cache: true
+#        state: present
+#
+#    - name: Install elasticsearch
+#      ansible.builtin.apt:
+#        name: elasticsearch=8.6.0
+#        state: present
+#
+#    - name: Copy elasticsearch configuration
+#      ansible.builtin.copy:
+#        src: ./templates/elasticsearch.yml
+#        dest: /etc/elasticsearch/
+#        force: true
+#        owner: root
+#        group: elasticsearch
+#        mode: u=rw,g=rw,o=r
+#
+#    - name: Run elasticsearch with systemd
+#      ansible.builtin.systemd:
+#        name: elasticsearch.service
+#        enabled: true
+#        daemon_reload: true
+#        state: started
+#      register: elastic_service_status
+#
+#    - name: Print elastic_service_status
+#      ansible.builtin.debug:
+#        msg: "Elastic service state: {{ elastic_service_status.status.ActiveState }}"
