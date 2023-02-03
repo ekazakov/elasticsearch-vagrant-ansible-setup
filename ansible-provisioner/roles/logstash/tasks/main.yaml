@@ -42,6 +42,23 @@
     group: elasticsearch
     mode: u=rw,g=rw,o=r
 
+- name: Copy logstash configuration 4
+  ansible.builtin.copy:
+    src: ./json_split_logstash.lconf
+    dest: /etc/logstash/conf.d/json_split_logstash.conf
+    force: true
+    owner: root
+    group: elasticsearch
+    mode: u=rw,g=rw,o=r
+
+- name: Copy logstash configuration 5
+  ansible.builtin.copy:
+    src: ./json_split_structured_logstash.lconf
+    dest: /etc/logstash/conf.d/json_split_structured_logstash.conf
+    force: true
+    owner: root
+    group: elasticsearch
+    mode: u=rw,g=rw,o=r
 # Run logstash:
 # cd  cd /usr/share/logstash
 # sudo bin/logstash -f /etc/logstash/conf.d/apache_access_log_logstash.lconf

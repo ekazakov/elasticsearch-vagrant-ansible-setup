@@ -8,3 +8,15 @@ GET http://127.0.0.1:9200/.ds-logs-generic-default-2023.02.03-000001/_search?pre
 ###
 
 GET http://127.0.0.1:9200/demo-json/_search
+
+###
+
+GET http://127.0.0.1:9200/demo-json-drop/_search
+
+###
+
+GET http://127.0.0.1:9200/demo-json-split/_search
+
+###
+
+GET http://127.0.0.1:9200/demo-json-split-structured/_search
