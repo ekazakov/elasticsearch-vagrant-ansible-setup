@@ -1,0 +1,10 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
+---
+- hosts: all
+  become: true
+  become_user: root
+
+  roles:
+    - logstash
+#    - elasticsearch
+

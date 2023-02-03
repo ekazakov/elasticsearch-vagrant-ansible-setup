@@ -1,0 +1,10 @@
+GET http://127.0.0.1:9200/_cat/indices?v
+
+###
+
+GET http://127.0.0.1:9200/.ds-logs-generic-default-2023.02.03-000001/_search?pretty&size=1
+
+
+###
+
+GET http://127.0.0.1:9200/demo-json/_search

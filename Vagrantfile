@@ -62,7 +62,7 @@ Vagrant.configure("2") do |config|
      vb.cpus = 2
      vb.name = "base"
   end
-  
+
   # View the documentation for the provider you are using for more
   # information on available options.
 
@@ -76,6 +76,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible" do |ansible|
     ansible.verbose = "v"
-    ansible.playbook="elk-playbook.yaml"
+    ansible.playbook="./ansible-provisioner/elk-playbook.yaml"
   end
 end
