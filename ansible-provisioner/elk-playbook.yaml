@@ -5,6 +5,6 @@
   become_user: root
 
   roles:
+    - elasticsearch
     - logstash
-#    - elasticsearch
 

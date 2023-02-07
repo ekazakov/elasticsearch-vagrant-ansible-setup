@@ -42,7 +42,7 @@
 
 - name: Copy elasticsearch configuration
   ansible.builtin.copy:
-    src: ./templates/elasticsearch.yml
+    src: ./elasticsearch.yml
     dest: /etc/elasticsearch/
     force: true
     owner: root
