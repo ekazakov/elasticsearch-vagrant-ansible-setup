@@ -1,0 +1,26 @@
+---
+
+- name: Apt update cache (apt)
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install kibana
+  ansible.builtin.apt:
+    name: kibana=8.6.0
+    state: present
+
+- name: Copy kibana configuration
+  ansible.builtin.copy:
+    src: ./kibana.yml
+    dest: /etc/kibana/kibana.yml
+    force: true
+    owner: root
+    group: elasticsearch
+    mode: u=rw,g=rw,o=r
+
+- name: Run kibana with systemd
+  ansible.builtin.systemd:
+    name: kibana.service
+    enabled: true
+    daemon_reload: true
+    state: started
