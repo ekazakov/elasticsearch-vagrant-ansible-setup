@@ -6,7 +6,7 @@
 
 - name: Install kibana
   ansible.builtin.apt:
-    name: kibana=8.6.0
+    name: kibana=8.6.1
     state: present
 
 - name: Copy kibana configuration

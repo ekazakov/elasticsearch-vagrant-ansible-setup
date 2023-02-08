@@ -1,0 +1,4 @@
+PUT http://127.0.0.1:9200/_bulk?pretty
+Content-Type: application/x-ndjson
+
+< ../data/shakespeare.json
